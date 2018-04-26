@@ -3,19 +3,30 @@ import urllib.request
 import cv2
 import webbrowser
 import numpy as np
-url = 'http://192.168.42.129:8080/shot.jpg'
+url = 'http://192.168.43.27:8080/shot.jpg'
+import pymysql
+conn=pymysql.connect(host='sql12.freesqldatabase.com',user='sql12223390',password='rztsUtEH2t',db='sql12223390')
+a=conn.cursor()
+
+
 
 cascadePath = "/home/pi/Desktop/xyz/Desktop/haarcascade_frontalface_default.xml"
 faceCascade = cv2.CascadeClassifier(cascadePath);
-#https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
-#eye_cascade = cv2.CascadeClassifier('/home/pi/Desktop/haarcascade_eye.xml')
 
-ID = input('Enter ID for recognition')
-samplenum = 1
+ID = input('Enter ID for recognition ')
+name = input('Enter name for recognition ')
+age = input('Enter age for recognition ')
+sql=("INSERT INTO Person (Id,Name,Age) VALUES ('%s', '%s', '%s')" % (ID,name,age))
+#insertstmt=("insert into TBLB (dateK, id, name, city) values ('%s', '%s', '%s', '%s')" % (dateK, id, name, city))
+#insertstmt=("insert into TBLB (dateK, id, name, city) values ('%s', '%s', '%s', '%s')"
+a.execute(sql)
+conn.commit()
+
+samplenum = 0
 while True:
     #print("shakti")
     context = ssl._create_unverified_context()
-    res = urllib.request.urlopen("http://192.168.42.129:8080/shot.jpg",context = context)
+    res = urllib.request.urlopen(url,context = context)
     imgNp = np.array(bytearray(res.read()) , dtype = np.uint8)
     font = cv2.FONT_HERSHEY_SIMPLEX
     img = cv2.imdecode(imgNp,-1)
@@ -36,7 +47,7 @@ while True:
         #for (ex,ey,ew,eh) in eyes:
           #  cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
     cv2.imshow('img',img)
-    if (samplenum > 20):
+    if (samplenum > 40):
         break
     #cv2.imshow('test' , img)
     #cv2.imshow('gray' , gray)
@@ -45,4 +56,3 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cv2.destroyAllWindows()
-    
